@@ -6,54 +6,6 @@ import sys
 import os
 
 
-def stream(camera_index, grayscale=True):
-    capture_live_stream = cv.VideoCapture(camera_index)
-    if not capture_live_stream.isOpened():
-        print("Camera cannot be opened")
-        exit()
-    while capture_live_stream.isOpened():
-        retval, frame = capture_live_stream.read()  # Capturing frame-by-frame.
-
-        if not retval:
-            confirm = input("There was a problem in obtaining frame. Has the Stream ended? (Y/N)")
-            if confirm == 'Y':
-                break
-            else:
-                print("Please check your device. The camera may have closed.")
-        frame = cv.flip(frame, 1)
-        if grayscale:
-            gray = cv.cvtColor(frame, cv.COLOR_BGRA2GRAY)
-            cv.imshow('Grayscale_Display', gray)
-        else:
-            cv.imshow('Colour_Display', frame)
-        if cv.waitKey(1) == ord(' '):
-            break
-    capture_live_stream.release()
-    cv.destroyAllWindows()
-
-
-def vid_store():
-    fourcc = cv.VideoWriter_fourcc(*'DIVX')
-    out = cv.VideoWriter("output_eye.avi", fourcc, 24, (640, 480))
-    capture_live_stream = cv.VideoCapture(0)
-    while capture_live_stream.isOpened():
-        retval, frame = capture_live_stream.read()  # Capturing frame-by-frame.
-
-        if not retval:
-            confirm = input("There was a problem in obtaining frame. Has the Stream ended? (Y/N)")
-            if confirm == 'Y':
-                break
-            else:
-                print("Please check your device. The camera may have closed.")
-        frame = cv.flip(frame, 1)
-        out.write(frame)
-        cv.imshow('frame', frame)
-        if cv.waitKey(1) == ord(' '):
-            break
-    capture_live_stream.release()
-    cv.destroyAllWindows()
-
-
 def image_render(imgname):
     img = cv.imread(imgname)
     if img is None:
