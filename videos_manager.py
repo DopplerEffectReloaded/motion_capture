@@ -1,13 +1,12 @@
 import cv2 as cv
-
+import os
 
 class Video:
-    grayscale_setting = False
-    fourcc_code = None
 
-    def __init__(self, grayscale, fourcc):
+    def __init__(self, grayscale, filename, fourcc = '*DIVX'):
         self.grayscale_setting = grayscale
         self.fourcc_code = fourcc
+        self.filename = filename
 
     def vid_store(self, bgr=True):
         """
@@ -43,3 +42,19 @@ class Video:
                     break
         capture_live_stream.release()
         cv.destroyAllWindows()
+
+    def vid_convert(filepath):
+
+        filenames = sorted(i for i in os.listdir(filepath))
+        if "frames" not in os.listdir():
+            os.makedirs("frames")
+        count = 0
+        for filename in filenames:
+            cap = cv.VideoCapture(filename)
+            while True:
+
+                _, frame = cap.read()
+                if frame is None:
+                    break
+                cv.imwrite(filepath + "\\frame%d.jpg" % count, frame)
+                count += 1
