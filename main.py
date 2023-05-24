@@ -307,9 +307,9 @@ def detect_and_display(frame, face_cascade, eyes_cascade):
     """
     This is a helper method for detecting face and eyes per frame
     To be used in the main function eye_face_tracker
-    :param eyes_cascade: Eyes haar cascade
-    :param face_cascade: Face haar cascade
     :param frame: to detect
+    :param face_cascade: Face haar cascade
+    :param eyes_cascade: Eyes haar cascade
     :return: void method displays frame
     """
     frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
@@ -323,13 +323,43 @@ def detect_and_display(frame, face_cascade, eyes_cascade):
         frame = cv.ellipse(frame, center, (w // 2, h // 2), 0, 0, 360, (255, 0, 255), 4)
 
         faceROI = frame_gray[y:y + h, x:x + w]
-        faceROI1 = frame[y:y+h, x: x + w]
+        # faceROI1 = frame[y:y+h, x: x + w]
         # cv.imshow('Capture-Face Detection', faceROI1)
+        # if cv.waitKey(0) == ord(' '):
+        #     break
         # Detecting eyes in each face
-        eyes = eyes_cascade.detectMultiScale(faceROI)
+        eyes = eyes_cascade.detectMultiScale(faceROI)    
         for (x2, y2, w2, h2) in eyes:
             eyes_center = (x + x2 + w2 // 2, y + y2 + h2 // 2)
             radius = int(round((w2 + h2) * 0.25))
+
+            # eye_ROI = faceROI1[y2:y2+h2, x2:x2+w2]
+            # row, col, _ = eye_ROI.shape
+            # waste = cv.dilate(eye_ROI, np.ones((5,5), dtype=np.uint8))
+            # waste = cv.GaussianBlur(waste, (5,5), 1)
+            # eye_ROI_without_waste = 255 - cv.absdiff(eye_ROI, waste)
+            # print(eye_ROI)
+            # eye_gauss = cv.cvtColor(eye_ROI, cv.COLOR_BGR2GRAY)
+            # eye_gauss = cv.GaussianBlur(eye_gauss, (7, 7), 0)
+            # _, thresh = cv.threshold(eye_gauss, 0, 255, cv.THRESH_BINARY_INV+cv.THRESH_OTSU)
+            # thresh = cv.adaptiveThreshold(eye_gauss, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY_INV, 11,2)
+            # cv.imshow("Threshold", thresh)
+            # key = cv.waitKey(30)
+            # if key == 27:
+            #     break
+            # contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+            
+            # contours = sorted(contours, key=lambda x:cv.contourArea(x), reverse=True)
+            
+            # for contour in contours:
+            #     (a, b, c, d) = cv.boundingRect(contour)
+            #     frame = cv.rectangle(frame, (x2+w2+a, y2+h2+b), (x2+w2+a+c, y2+h2+b+d), (255, 0, 0), 2)
+            #     frame = cv.line(frame, (a+c//2, 0), (a+c//2, row), (0,255,0),2)
+            #     frame = cv.line(frame, (0, b+d//2), (col, b+d//2), (0, 0, 255), 2)
+            #     break
+            # cv.imshow('Capture eye', eye_ROI)
+            # if cv.waitKey(0) == ord(' '):
+            #     break
             frame = cv.circle(frame, eyes_center, radius, (255, 0, 0), 4)
 
     cv.imshow('Capture-Face Detection', frame)
@@ -365,3 +395,6 @@ def eye_and_face_tracker():
         out.write(frame)
         if cv.waitKey(10) == ord(' '):
             break
+
+if __name__ == '__main__':
+    eye_and_face_tracker()
