@@ -317,7 +317,6 @@ def detect_and_display(frame, face_cascade, eyes_cascade):
 
     # Detecting faces
     faces = face_cascade.detectMultiScale(frame_gray)
-
     for (x, y, w, h) in faces:
         center = (x + w // 2, y + h // 2)
         frame = cv.ellipse(frame, center, (w // 2, h // 2), 0, 0, 360, (255, 0, 255), 4)
@@ -328,9 +327,32 @@ def detect_and_display(frame, face_cascade, eyes_cascade):
         # if cv.waitKey(0) == ord(' '):
         #     break
         # Detecting eyes in each face
-        eyes = eyes_cascade.detectMultiScale(faceROI)    
+
+        eyes = eyes_cascade.detectMultiScale(faceROI)
+        # eye_right=False 
+        eye_left = ()
+        eye_right = ()
+        flag = True
         for (x2, y2, w2, h2) in eyes:
             eyes_center = (x + x2 + w2 // 2, y + y2 + h2 // 2)
+            if flag:
+                eye_left = eyes_center
+                flag = False
+            else:
+                eye_right = eyes_center
+                flag=True
+            if eye_left==():
+                continue
+            elif eye_right==():
+                continue
+            else:
+                both_eyes = (eye_left, eye_right)
+            initial_point = tuple([int(sum(q)/len(q)) for q in zip(*both_eyes)])
+            
+            # temp = (eye_left_lst[i], eye_right_lst[i])
+            # center_coords = [sum(q)/len(q) for q in zip(*temp)]
+            # print(type(center_coords))
+            # print(eyes_center)
             radius = int(round((w2 + h2) * 0.25))
 
             # eye_ROI = faceROI1[y2:y2+h2, x2:x2+w2]
@@ -360,6 +382,7 @@ def detect_and_display(frame, face_cascade, eyes_cascade):
             # cv.imshow('Capture eye', eye_ROI)
             # if cv.waitKey(0) == ord(' '):
             #     break
+            frame = cv.circle(frame, initial_point, radius=3, color=(0,0,255), thickness=-1)
             frame = cv.circle(frame, eyes_center, radius, (255, 0, 0), 4)
 
     cv.imshow('Capture-Face Detection', frame)
