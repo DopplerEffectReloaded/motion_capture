@@ -4,7 +4,39 @@ import numpy as np
 import cv2 as cv
 import sys
 import os
+import json
 
+MASTER_DIRECTION_JSON = """{
+"Start":{
+"TL": "(1, -1)"
+},
+"Top-Left": {
+"TL": "(0, 0)",
+"TR": "(-1, 0)",
+"BR": "(-1, 1)",
+"BL": "(0, 1)"
+},
+"Top-Right": {
+"TL": "(1, 0)",
+"TR": "(0, 0)",
+"BR": "(0, 1)",
+"BL": "(1, 1)"
+},
+"Bottom-Right": {
+"TL": "(1, -1)",
+"TR": "(0, -1)",
+"BR": "(0, 0)",
+"BL": "(1, 0)"
+},
+"Bottom-Left": {
+"TL": "(0, -1)",
+"TR": "(-1, -1)",
+"BR": "(-1, 0)",
+"BL": "(0, 0)"
+}
+}"""
+DICT_MASTER_DIRECTION_JSON = json.loads(MASTER_DIRECTION_JSON)
+print(DICT_MASTER_DIRECTION_JSON)
 CENTER_COORDS_LIST = [(630, 10), (10, 10), (10, 471), (630, 471)]
 RADIUS_OBJ = 10
 START = ()
@@ -452,5 +484,5 @@ def eye_and_face_tracker():
         if cv.waitKey(50) == ord(' '):
             break
 
-if __name__ == '__main__':
-    eye_and_face_tracker()
+# if __name__ == '__main__':
+#     eye_and_face_tracker()
