@@ -5,7 +5,11 @@ import cv2 as cv
 import sys
 import os
 
-
+CENTER_COORDS_LIST = [(630, 10), (10, 10), (10, 471), (630, 471)]
+RADIUS_OBJ = 10
+START = ()
+# CHANGE_PHASE = False
+END = ()
 def image_render(imgname):
     img = cv.imread(imgname)
     if img is None:
@@ -303,7 +307,7 @@ def movingobj_tracker():
     cv.destroyAllWindows()
 
 
-def detect_and_display(frame, face_cascade, eyes_cascade):
+def detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_phase):
     """
     This is a helper method for detecting face and eyes per frame
     To be used in the main function eye_face_tracker
@@ -312,6 +316,7 @@ def detect_and_display(frame, face_cascade, eyes_cascade):
     :param eyes_cascade: Eyes haar cascade
     :return: void method displays frame
     """
+    frame = cv.flip(frame, 1)
     frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     frame_gray = cv.equalizeHist(frame_gray)
 
@@ -347,7 +352,15 @@ def detect_and_display(frame, face_cascade, eyes_cascade):
                 continue
             else:
                 both_eyes = (eye_left, eye_right)
-            initial_point = tuple([int(sum(q)/len(q)) for q in zip(*both_eyes)])
+            point = tuple([int(sum(q)/len(q)) for q in zip(*both_eyes)])
+
+            if frame_count == 0:
+                START = point
+                print(START)
+                
+            if change_phase:
+                END = point
+                print(END)
             
             # temp = (eye_left_lst[i], eye_right_lst[i])
             # center_coords = [sum(q)/len(q) for q in zip(*temp)]
@@ -382,9 +395,12 @@ def detect_and_display(frame, face_cascade, eyes_cascade):
             # cv.imshow('Capture eye', eye_ROI)
             # if cv.waitKey(0) == ord(' '):
             #     break
-            frame = cv.circle(frame, initial_point, radius=3, color=(0,0,255), thickness=-1)
-            frame = cv.circle(frame, eyes_center, radius, (255, 0, 0), 4)
 
+            
+            frame = cv.circle(frame, point, radius=3, color=(0,0,255), thickness=-1)
+            frame = cv.circle(frame, eyes_center, radius, (255, 0, 0), 4)
+    cv.namedWindow('Capture-Face Detection', cv.WND_PROP_FULLSCREEN)
+    cv.setWindowProperty('Capture-Face Detection', cv.WND_PROP_FULLSCREEN, cv.WINDOW_FULLSCREEN)
     cv.imshow('Capture-Face Detection', frame)
 
 
@@ -395,7 +411,6 @@ def eye_and_face_tracker():
     """
     face_cascade_name = "C:\\Users\\SACHIN\\anaconda3\\Lib\\site-packages\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_alt.xml"  # Path
     eyes_cascade_name = "C:\\Users\\SACHIN\\anaconda3\\Lib\\site-packages\\opencv\\sources\\data\\haarcascades\\haarcascade_eye_tree_eyeglasses.xml"  # Path
-
     face_cascade = cv.CascadeClassifier()
     eyes_cascade = cv.CascadeClassifier()
     if not face_cascade.load(cv.samples.findFile(face_cascade_name)):
@@ -404,19 +419,37 @@ def eye_and_face_tracker():
     if not eyes_cascade.load(cv.samples.findFile(eyes_cascade_name)):
         print('--(!)Error loading eyes cascade')
         exit(0)
-    fourcc = cv.VideoWriter_fourcc(*'DIVX')
-    out = cv.VideoWriter("output_eye.avi", fourcc, 7, (640, 480))
+    # fourcc = cv.VideoWriter_fourcc(*'DIVX')
+    # out = cv.VideoWriter("output_eye.avi", fourcc, 7, (640, 480))
     cap = cv.VideoCapture(0)
     if not cap.isOpened():
         print('--(!)Error opening camera')
         exit(0)
+    frame_count = -1
+    change_phase = False
     while True:
         ret, frame = cap.read()
         if ret is None:
             break
-        detect_and_display(frame, face_cascade, eyes_cascade)
-        out.write(frame)
-        if cv.waitKey(10) == ord(' '):
+        # frame = cv.line(frame, (335, 0), (335,512), (0,0,255), 4)
+        # frame = cv.line(frame, (0, 250), (1000,250), (0,0,255), 4)
+        
+        frame_count += 1
+        if frame_count == 50:
+            change_phase = True
+        if frame_count == 100:
+            change_phase = True
+        if frame_count == 150:
+            change_phase = True
+        if frame_count//50 <= 3:
+            frame = cv.circle(frame, CENTER_COORDS_LIST[frame_count//50], RADIUS_OBJ, color=(0,255,255), thickness=-1)
+        else:
+            frame_count=1
+            change_phase = True
+        detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_phase)
+        change_phase = False
+        # out.write(frame)
+        if cv.waitKey(50) == ord(' '):
             break
 
 if __name__ == '__main__':
