@@ -6,41 +6,45 @@ import sys
 import os
 import json
 
-MASTER_DIRECTION_JSON = """{
-"Start":{
-"TL": "(2, -1)"
-},
-"Top-Left": {
-"TL": "(0, 0)",
-"TR": "(-1, 0)",
-"BR": "(-1, 1)",
-"BL": "(0, 1)"
-},
-"Top-Right": {
-"TL": "(1, 0)",
-"TR": "(0, 0)",
-"BR": "(0, 1)",
-"BL": "(1, 1)"
-},
-"Bottom-Right": {
-"TL": "(1, -1)",
-"TR": "(0, -1)",
-"BR": "(0, 0)",
-"BL": "(1, 0)"
-},
-"Bottom-Left": {
-"TL": "(0, -1)",
-"TR": "(-1, -1)",
-"BR": "(-1, 0)",
-"BL": "(0, 0)"
-}
-}"""
-DICT_MASTER_DIRECTION_JSON = json.loads(MASTER_DIRECTION_JSON)
-# print(DICT_MASTER_DIRECTION_JSON)
+# MASTER_DIRECTION_JSON = """{
+# "start":{
+# "TL": "(2, -1)"
+# },
+# "Top-Left": {
+# "TL": "(0, 0)",
+# "TR": "(-1, 0)",
+# "BR": "(-1, 1)",
+# "BL": "(0, 1)"
+# },
+# "Top-Right": {
+# "TL": "(1, 0)",
+# "TR": "(0, 0)",
+# "BR": "(0, 1)",
+# "BL": "(1, 1)"
+# },
+# "Bottom-Right": {
+# "TL": "(1, -1)",
+# "TR": "(0, -1)",
+# "BR": "(0, 0)",
+# "BL": "(1, 0)"
+# },
+# "Bottom-Left": {
+# "TL": "(0, -1)",
+# "TR": "(-1, -1)",
+# "BR": "(-1, 0)",
+# "BL": "(0, 0)"
+# }
+# }"""
+# DICT_MASTER_DIRECTION_JSON = json.loads(MASTER_DIRECTION_JSON)
+# # print(DICT_MASTER_DIRECTION_JSON)
 CENTER_COORDS_LIST = [(630, 10), (10, 10), (10, 471), (630, 471)]
 RADIUS_OBJ = 10
-START = ()
-END = ()
+# start = ()
+# end_tl = ()
+# end_tr = ()
+# end_br = ()
+# end_bl = ()
+
 def image_render(imgname):
     img = cv.imread(imgname)
     if img is None:
@@ -337,8 +341,7 @@ def movingobj_tracker():
         frame_gray = next_frame
     cv.destroyAllWindows()
 
-
-def detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_phase):
+def detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_phase, phase_count):
     """
     This is a helper method for detecting face and eyes per frame
     To be used in the main function eye_face_tracker
@@ -350,7 +353,6 @@ def detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_ph
     frame = cv.flip(frame, 1)
     frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     frame_gray = cv.equalizeHist(frame_gray)
-
     # Detecting faces
     faces = face_cascade.detectMultiScale(frame_gray)
     for (x, y, w, h) in faces:
@@ -384,15 +386,55 @@ def detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_ph
             else:
                 both_eyes = (eye_left, eye_right)
             point = tuple([int(sum(q)/len(q)) for q in zip(*both_eyes)])
-
+           
             if frame_count == 0:
-                START = point
-                print(START)
+                global start
+                start = point
+                print("start:")
+                print(start)
                 
             if change_phase:
-                END = point
-                print(END)
-            
+                if phase_count == 1:
+                    global end_tl
+                    end_tl = point
+                    # print("end_tl:")
+                    # print(end_tl)
+                    difference = (start[0] - end_tl[0], start[1]-end_tl[1])
+                    print("Difference start to TL")
+                    print(difference)
+                    if difference[0] > 5 and (difference[1] > -3 or difference[1] < 3):
+                        print("Success")
+                if phase_count == 2:
+                    global end_tr
+                    end_tr = point
+                    # print("end_tr:")
+                    # print(end_tr)
+                    difference = (end_tr[0] - end_tl[0], end_tr[1] - end_tl[1])
+                    print("Difference TL to TR")
+                    print(difference)
+                    if difference[0] >=3 and (difference[1] < 5 or difference[1] > -5):
+                        print("Success")
+                if phase_count == 3:
+                    global end_br
+                    end_br = point
+                    # print("end_br:")
+                    # print(end_br)
+                    difference = (end_br[0] - end_tr[0], end_br[1]-end_tr[1])
+                    print("Difference TR to BR")
+                    print(difference)
+                    if (difference[0] < 2 or difference[0] > -2) and difference[1] >= 8:
+                        print("Success")
+                if phase_count == 4:
+                    global end_bl
+                    end_bl = point
+                    # print("end_bl:")
+                    # print(end_bl)
+                    difference = (end_br[0]-end_bl[0], end_br[1]-end_bl[1])
+                    print("Difference BR to BL")
+                    print(difference)
+                    if difference[0] >= 5 and difference[1] < 5:
+                        print("Success")
+                    phase_count = 0
             # temp = (eye_left_lst[i], eye_right_lst[i])
             # center_coords = [sum(q)/len(q) for q in zip(*temp)]
             # print(type(center_coords))
@@ -458,6 +500,7 @@ def eye_and_face_tracker():
         exit(0)
     frame_count = -1
     change_phase = False
+    phase_count = 0
     while True:
         ret, frame = cap.read()
         if ret is None:
@@ -468,16 +511,21 @@ def eye_and_face_tracker():
         frame_count += 1
         if frame_count == 50:
             change_phase = True
+            phase_count += 1
         if frame_count == 100:
             change_phase = True
+            phase_count += 1
         if frame_count == 150:
             change_phase = True
+            phase_count += 1
+        if frame_count == 200:
+            phase_count += 1
         if frame_count//50 <= 3:
             frame = cv.circle(frame, CENTER_COORDS_LIST[frame_count//50], RADIUS_OBJ, color=(0,255,255), thickness=-1)
         else:
             frame_count=1
             change_phase = True
-        detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_phase)
+        detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_phase, phase_count)
         change_phase = False
         # out.write(frame)
         if cv.waitKey(50) == ord(' '):
