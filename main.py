@@ -397,13 +397,15 @@ def detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_ph
                 if phase_count == 1:
                     global end_tl
                     end_tl = point
-                    # print("end_tl:")
-                    # print(end_tl)
+                    print("end_tl:")
+                    print(end_tl)
                     difference = (start[0] - end_tl[0], start[1]-end_tl[1])
                     print("Difference start to TL")
                     print(difference)
-                    if difference[0] > 5 and (difference[1] > -3 or difference[1] < 3):
+                    if (difference[0] >= 20 and difference[0] <= 40) and (difference[1] >= 10 and difference[1] <= 25):
                         print("Success")
+                    else:
+                        print("Failure")
                 if phase_count == 2:
                     global end_tr
                     end_tr = point
@@ -412,8 +414,10 @@ def detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_ph
                     difference = (end_tr[0] - end_tl[0], end_tr[1] - end_tl[1])
                     print("Difference TL to TR")
                     print(difference)
-                    if difference[0] >=3 and (difference[1] < 5 or difference[1] > -5):
+                    if (difference[0] >= 30 and difference[0] <= 50) and (difference[1] <= 10 and difference[1] >= -10):
                         print("Success")
+                    else:
+                        print("Failure")
                 if phase_count == 3:
                     global end_br
                     end_br = point
@@ -422,8 +426,10 @@ def detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_ph
                     difference = (end_br[0] - end_tr[0], end_br[1]-end_tr[1])
                     print("Difference TR to BR")
                     print(difference)
-                    if (difference[0] < 2 or difference[0] > -2) and difference[1] >= 8:
+                    if (difference[0] <= 13 and difference[0] > -13) and (difference[1] >= 25 and difference[1] <= 45):
                         print("Success")
+                    else:
+                        print("Failure")
                 if phase_count == 4:
                     global end_bl
                     end_bl = point
@@ -432,8 +438,10 @@ def detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_ph
                     difference = (end_br[0]-end_bl[0], end_br[1]-end_bl[1])
                     print("Difference BR to BL")
                     print(difference)
-                    if difference[0] >= 5 and difference[1] < 5:
+                    if (difference[0] >= 56 and difference[0] <= 76) and (difference[1] < 5 and difference[1] >-5) :
                         print("Success")
+                    else:
+                        print("Failure")
                     phase_count = 0
             # temp = (eye_left_lst[i], eye_right_lst[i])
             # center_coords = [sum(q)/len(q) for q in zip(*temp)]
