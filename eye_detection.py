@@ -15,6 +15,7 @@ def detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_ph
     :param face_cascade: Face haar cascade
     :param eyes_cascade: Eyes haar cascade
     :param frame_count: The number of frames elapsed since start of video stream
+    :param change_phase: A boolean value indicating whether phase has to be changed
     :param phase_count: The phase of motion the object is in
     :return: void method displays frame
     """
@@ -74,13 +75,14 @@ def detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_ph
                     global end_tl
                     end_tl = point # The eye_center coords when object moves from top left position
                     difference = (start[0] - end_tl[0], start[1] - end_tl[1])
-                    # print(difference) : Debug
+                    
 
                     # Checking if the eye movement is done properly and showing success or failure message
-                    if difference[0] >= 20 and (difference[1] >= 10 and difference[1] <= 35):
+                    if difference[0] <= 10 and (difference[1] <= 5 and difference[1] >= -35):
                         cv.rectangle(frame, (0, 0), (1000, 512), (255, 255, 255), -1)
                         cv.putText(frame, "SUCCESS", (200, 266), FONT, 2, (0, 255, 0), 2, cv.LINE_AA)
                         time.sleep(2)
+                        print(difference)
                     else:
                         cv.rectangle(frame, (0, 0), (1000, 512), (255, 255, 255), -1)
                         cv.putText(frame, "FAILURE", (200, 266), FONT, 2, (0, 0, 255), 2, cv.LINE_AA)
@@ -90,13 +92,14 @@ def detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_ph
                     global end_tr
                     end_tr = point # The eye_center coords when object moves from top right position
                     difference = (end_tr[0] - end_tl[0], end_tr[1] - end_tl[1])
-                    # print(difference) : Debug
+                    
 
                     # Checking if the eye movement is done properly and showing success or failure message
-                    if difference[0] >= 20 and (difference[1] <= 10 and difference[1] >= -10):
+                    if difference[0] <= 10 and (difference[1] <= 10 and difference[1] >= -10):
                         cv.rectangle(frame, (0, 0), (1000, 512), (255, 255, 255), -1)
                         cv.putText(frame, "SUCCESS", (200, 266), FONT, 2, (0, 255, 0), 2, cv.LINE_AA)
                         time.sleep(2)
+                        print(difference)
                     else:
                         cv.rectangle(frame, (0, 0), (1000, 512), (255, 255, 255), -1)
                         cv.putText(frame, "FAILURE", (200, 266), FONT, 2, (0, 0, 255), 2, cv.LINE_AA)
@@ -106,13 +109,14 @@ def detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_ph
                     global end_br
                     end_br = point # The eye_center coords when object moves from bottom right position
                     difference = (end_br[0] - end_tr[0], end_br[1] - end_tr[1])
-                    # print(difference) : Debug
+                    
 
                     # Checking if the eye movement is done properly and showing success or failure message
                     if (difference[0] <= 25 and difference[0] >= -25) and difference[1] >= 25:
                         cv.rectangle(frame, (0, 0), (1000, 512), (255, 255, 255), -1)
                         cv.putText(frame, "SUCCESS", (200, 266), FONT, 2, (0, 255, 0), 2, cv.LINE_AA)
                         time.sleep(2)
+                        print(difference)
                     else:
                         cv.rectangle(frame, (0, 0), (1000, 512), (255, 255, 255), -1)
                         cv.putText(frame, "FAILURE", (200, 266), FONT, 2, (0, 0, 255), 2, cv.LINE_AA)
@@ -122,13 +126,14 @@ def detect_and_display(frame, face_cascade, eyes_cascade, frame_count, change_ph
                     global end_bl
                     end_bl = point # The eye_center coords when object moves from bottom left position
                     difference = (end_br[0] - end_bl[0], end_br[1] - end_bl[1])
-                    # print(difference) : Debug
+                    
 
                     # Checking if the eye movement is done properly and showing success or failure message
                     if difference[0] >= 40 and (difference[1] < 15 and difference[1] > -15):
                         cv.rectangle(frame, (0, 0), (1000, 512), (255, 255, 255), -1)
                         cv.putText(frame, "SUCCESS", (200, 266), FONT, 2, (0, 255, 0), 2, cv.LINE_AA)
                         time.sleep(2)
+                        print(difference)
                     else:
                         cv.rectangle(frame, (0, 0), (1000, 512), (255, 255, 255), -1)
                         cv.putText(frame, "FAILURE", (200, 266), FONT, 2, (0, 0, 255), 2, cv.LINE_AA)
@@ -152,7 +157,7 @@ def eye_and_face_tracker():
     
     :return: void method
     """
-    # Getting the haar cascade algorithm for running from local storace and loading it
+    # Getting the haar cascade algorithm for running from local storage and loading it
     face_cascade_name = "C:\\Users\\SACHIN\\anaconda3\\Lib\\site-packages\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_alt.xml"  # Path
     eyes_cascade_name = "C:\\Users\\SACHIN\\anaconda3\\Lib\\site-packages\\opencv\\sources\\data\\haarcascades\\haarcascade_eye_tree_eyeglasses.xml"  # Path
     face_cascade = cv.CascadeClassifier()
@@ -165,8 +170,8 @@ def eye_and_face_tracker():
         print("--(!)Error loading eyes cascade")
         exit(0) # Exits if cannot find model
 
-    # fourcc = cv.VideoWriter_fourcc(*'DIVX') : For saving video
-    # out = cv.VideoWriter("output_eye.avi", fourcc, 7, (640, 480)) : For saving video
+    fourcc = cv.VideoWriter_fourcc(*'DIVX')
+    out = cv.VideoWriter("output_eye.avi", fourcc, 7, (640, 480))
 
     # Starts the video capture through camera
     cap = cv.VideoCapture(0)
@@ -219,7 +224,7 @@ def eye_and_face_tracker():
         # Resets change_phase so as to not continuously change the phase
         change_phase = False
 
-        # out.write(frame) : For saving video
+        out.write(frame)
 
         # Waits for 'space' key to be pressed to terminate program
         if cv.waitKey(50) == ord(" "):

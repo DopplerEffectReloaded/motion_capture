@@ -49,6 +49,6 @@ class Images:
     def get_format(self):
         return self.lines
 
-
-images = Images("C:\\Users\\SACHIN\\Video_Live_Stream\\motion_capture\\diff_exposure_seq")
+path = "C:\\Users\\SACHIN\\Video_Live_Stream\\motion_capture\\diff_exposure_seq"
+images = Images(path)
 print(images.get_format())

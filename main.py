@@ -337,3 +337,11 @@ def movingobj_tracker():
             cv.imwrite('opticalhsv.png', bgr)
         frame_gray = next_frame
     cv.destroyAllWindows()
+
+def img2grayscale(path):
+    images = [i for i in os.listdir(path)]
+    for i in images:
+        img = cv.imread(path+i)
+        grayscale_img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        cv.imwrite(path+"grayscale"+i, grayscale_img)
+img2grayscale("speakers/")
